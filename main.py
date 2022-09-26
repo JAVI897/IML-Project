@@ -17,7 +17,7 @@ def main():
 
     if config['dataset'] == 'vote':
         df = preprocess_vote()
-        print(df.head())
+        #print(df.head())
 
 
 if __name__ == '__main__':
