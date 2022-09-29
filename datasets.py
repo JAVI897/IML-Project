@@ -64,7 +64,7 @@ def preprocess_adult():
     transformed_numerical = transformer_numerical.fit_transform(df)
     transformed_numerical = pd.DataFrame(transformed_numerical, columns=transformer_numerical.get_feature_names_out())
 
-    df_merged = pd.concat([transformed_df, transformed_numerical], axis=1, sort=False)
+    df_merged = pd.concat([transformed_df, transformed_numerical], axis=1, sort=False).sample(n=5000, random_state=1)
 
     Y = df_merged['class']
     X = df_merged.drop('class', axis=1)

@@ -42,7 +42,7 @@ def main():
     if config['num_clusters'] is None:
         ### Evaluate different number of clusters on dataset
         result = evaluate_clustering_number(config, X, Y)
-        print(result)
+        #print(result)
 
     else:
         ### Run clusteringAlg on selected number of clusters
