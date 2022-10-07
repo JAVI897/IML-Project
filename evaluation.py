@@ -7,6 +7,16 @@ from sklearn.metrics import silhouette_score
 from sklearn.metrics import davies_bouldin_score
 import pandas as pd
 import numpy as np
+from pyclustertend import hopkins, vat
+
+def cluster_tendency(X, config):
+    output = './plots/{}/'.format(config['dataset'])
+    H = hopkins(X.values, X.values.shape[0])
+    print('[INFO] Hopkins test: {}'.format(H))
+    vat_matrix = vat(X.values)
+    plt.title('Vat matrix for dataset: {}'.format(config['dataset']))
+    plt.savefig(output+'vat_matrix_{}.jpg'.format(config['dataset']), bbox_inches='tight')
+
 
 def evaluate_clustering_number(config, X, Y):
     eval = {}

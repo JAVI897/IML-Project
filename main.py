@@ -1,6 +1,10 @@
 import argparse
 from datasets import preprocess_vote, preprocess_adult, preprocess_iris
-from evaluation import evaluate_clustering_number
+from evaluation import evaluate_clustering_number, cluster_tendency
+from sklearn.cluster import AgglomerativeClustering, MeanShift
+from visualize import bar_plot_vote, coordinate_plot, coordinate_plot_by_cluster, correspondence_analysis_plots
+import pandas as pd
+import matplotlib.pyplot as plt
 ### Clustering Algorithms
 
 parser = argparse.ArgumentParser()
@@ -38,6 +42,7 @@ def main():
     if config['dataset'] == 'iris':
         X, Y = preprocess_iris()
 
+    cluster_tendency(X, config)
 
     if config['num_clusters'] is None:
         ### Evaluate different number of clusters on dataset
@@ -50,6 +55,23 @@ def main():
             clustering = AgglomerativeClustering(n_clusters = config['num_clusters'],
                                                  affinity=config['affinity'],
                                                  linkage=config['linkage'])
+            labels = clustering.fit_predict(X.values)
+
+        if config['clusteringAlg'] == 'ms':
+            clustering = MeanShift()
+            labels = clustering.fit_predict(X.values)
+
+        if config['dataset'] == 'vote':
+            bar_plot_vote(X.copy(), Y.copy(), labels, output = './plots/vote/', rename_target={0:'republican', 1:'democrat'})
+            correspondence_analysis_plots(X.copy(), Y.copy(), labels, output = './plots/vote/', hue='cluster', rename_target={0:'republican', 1:'democrat'})
+            correspondence_analysis_plots(X.copy(), Y.copy(), labels, output ='./plots/vote/', hue='target',   rename_target={0: 'republican', 1: 'democrat'})
+
+        if config['dataset'] == 'iris':
+            columns_to_plot = [ 'standardscaler__petalwidth', 'standardscaler__petallength',
+                                'standardscaler__sepalwidth', 'standardscaler__sepallength']
+            coordinate_plot(X, Y, labels, columns_to_plot, output='./plots/iris/')
+            coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output='./plots/iris/')
+
 
 if __name__ == '__main__':
 	main()
