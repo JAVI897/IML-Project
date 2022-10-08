@@ -2,8 +2,72 @@ import matplotlib.pyplot as plt
 from pandas.plotting import parallel_coordinates
 import seaborn as sns
 import prince
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+import pandas as pd
+
+##### STATISTICAL TEST FUNCTIONS
+def chi2(X, labels, vbles_to_perform_x2, output):
+    """
+    chi2 test
+    Function that given a dataset, a set of clustering labels
+    and a list of variables computes the chi2 test for each
+    categorical variable using the clustering labels. p-value
+    results are saved in a csv file
+
+    :param X: nxd dataset
+    :param labels: clustering labels
+    :param vbles_to_perform_x2: list of variables
+    :param output: path to save csv
+    """
+    dict = {'Vble': [], 'chi2_p_value': []}
+    for vble_cat in vbles_to_perform_x2:
+        df = pd.DataFrame({'value': X[vble_cat].values, 'clusters':['cluster {}'.format(i) for i in labels]})
+        table = sm.stats.Table.from_data(df)
+        rslt = table.test_nominal_association()
+        dict['chi2_p_value'].append( round(rslt.pvalue, 4) )
+        dict['Vble'].append(vble_cat)
+    x2_results = pd.DataFrame(dict)
+    x2_results.to_csv(output+'x2.csv', index=False)
+
+def anova(X, labels, vbles_to_perform_anova, output):
+    """
+    anova
+    Function that given a dataset, a set of clustering labels
+    and a list of variables computes the ANOVA test for each
+    variable using as factors the clustering labels. p-value
+    results are saved in a csv file
+
+    :param X: nxd dataset
+    :param labels: clustering labels
+    :param vbles_to_perform_anova: list of variables
+    :param output: path to save csv
+    """
+    dict = {'Vble': [], 'Anova_p_value': []}
+    for vble_num in vbles_to_perform_anova:
+        df = pd.DataFrame({'value': X[vble_num].values, 'clusters':['cluster {}'.format(i) for i in labels]})
+        df["value"] = pd.to_numeric(df["value"])
+        model = ols('value ~ clusters', data=df).fit()
+        anova_table = sm.stats.anova_lm(model, typ=2)
+        dict['Anova_p_value'].append( round(anova_table['PR(>F)'].clusters, 4) )
+        dict['Vble'].append(vble_num)
+    anovas_results = pd.DataFrame(dict)
+    anovas_results.to_csv(output+'anova.csv', index=False)
+
+##### VISUALIZATION FUNCTIONS
 
 def bar_plot_vote(X, Y, labels, output, rename_target = None):
+    """
+    bar_plot_vote
+    Given a dataset, the target variable and the clustering labels,
+    this function plots a bar plot for each categorical variable
+    in the vote dataset distinguishing between clusters
+
+    :param X: nxd dataset
+    :param Y: target variable
+    :param labels: clustering labels
+    :param output: path
+    """
     plt.style.use('seaborn-white')
     X['Target'] = Y
     if rename_target is not None:
@@ -16,6 +80,18 @@ def bar_plot_vote(X, Y, labels, output, rename_target = None):
         plt.savefig(output+'{}.jpg'.format(column), bbox_inches='tight')
 
 def coordinate_plot(X, Y, labels, columns_to_plot, output, rename_target=None):
+    """
+    coordinate_plot
+    Given a dataset, the target variable and the clustering labels,
+    this function plots a coordinate plot for each variable specified
+    in columns_to_plot list
+
+    :param X: nxd dataset
+    :param Y: target
+    :param labels: clustering labels
+    :param columns_to_plot: list of columns to plot
+    :param output: output path
+    """
     plt.style.use('seaborn-white')
     X['Target'] = Y
     if rename_target is not None:
@@ -25,7 +101,20 @@ def coordinate_plot(X, Y, labels, columns_to_plot, output, rename_target=None):
     parallel_coordinates(X, 'Target', cols = ['Cluster'] + columns_to_plot)
     plt.savefig(output + 'parallel_coords.jpg', bbox_inches='tight')
 
+
 def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, rename_target=None):
+    """
+    coordinate_plot
+    Given a dataset, the target variable and the clustering labels,
+    this function plots a coordinate plot for each variable specified
+    in columns_to_plot list and for each cluster
+
+    :param X: nxd dataset
+    :param Y: target
+    :param labels: clustering labels
+    :param columns_to_plot: list of columns to plot
+    :param output: output path
+    """
     plt.style.use('seaborn-white')
     X['Target'] = Y
     if rename_target is not None:
@@ -42,6 +131,18 @@ def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, rename_tar
         plt.savefig(output + 'parallel_coords_cluster_{}.jpg'.format(cluster), bbox_inches='tight')
 
 def correspondence_analysis_plots(X, Y, labels, output, hue = 'cluster', rename_target=None):
+    """
+    correspondence_analysis_plots
+    Function that given a dataset, the target variable and the clustering
+    labels, performs a Multiple correspondence analysis on X colouring
+    the plots by the variable specified in the hue parameter
+
+    :param X: nxd dataset
+    :param Y: target
+    :param labels: clustering labels
+    :param output: path
+    :param hue: colouring
+    """
     plt.style.use('seaborn-white')
     X.columns = [i.replace('_', '-').replace('-yes', '') for i in X.columns]
     mca = prince.MCA()

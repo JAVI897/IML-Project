@@ -9,7 +9,18 @@ import pandas as pd
 import numpy as np
 from pyclustertend import hopkins, vat
 
+##### CLUSTER TENDENCY FUNCTIONS
+
 def cluster_tendency(X, config):
+    """
+    cluster_tendency
+    Function that takes a dataset and computes
+    the Hopkins statistic and the VAT matrix
+    implemented using pyclustertend library
+
+    :param X: nxd dataset
+    :param config: config dictionary
+    """
     output = './plots/{}/'.format(config['dataset'])
     H = hopkins(X.values, X.values.shape[0])
     print('[INFO] Hopkins test: {}'.format(H))
@@ -17,8 +28,23 @@ def cluster_tendency(X, config):
     plt.title('Vat matrix for dataset: {}'.format(config['dataset']))
     plt.savefig(output+'vat_matrix_{}.jpg'.format(config['dataset']), bbox_inches='tight')
 
+##### FUNCTIONS TO EVALUATE THE NUMBER OF CLUSTERS
 
 def evaluate_clustering_number(config, X, Y):
+    """
+    evaluate_clustering_number
+    Function that depending on the Clustering algorithm
+    that has been selected computes different clustering
+    metrics for different number of clusters. Results are
+    saved in a csv file
+
+    :param config: config dictionary
+    :param X: nxd dataset
+    :param Y: target
+    :return eval dictionary which keys are the number of
+    clusters and values another dictionary with the metrics
+    for each number of cluster
+    """
     eval = {}
     if config['clusteringAlg'] == 'ms':
         clustering = MeanShift()
@@ -45,6 +71,14 @@ def evaluate_clustering_number(config, X, Y):
     return eval
 
 def save_log(config, eval):
+    """
+    save_log
+    Function that takes the eval dictionary and saves the results
+    in an existing csv file that gets updated with the new results
+
+    :param config: config dictionary
+    :param eval: eval dictionary
+    """
     path = './results/{}.csv'.format(config['dataset'])
     data = [[k, v['ari'], v['sil'], v['dbs']] for k, v in eval.items()]
     if os.path.isfile(path):
