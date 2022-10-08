@@ -1,3 +1,5 @@
+# Work 1 Clustering exercise
+
 ### Dependencies
 
 - numpy
