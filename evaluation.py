@@ -81,20 +81,12 @@ def evaluate_clustering_number(config, X, Y):
 
     if config['clusteringAlg'] == 'fuzzy':
         plot_p_indexes(config, p_indexes, output='./plots/{}/c_means/p_indexes.png'.format(config['dataset']))
+        plot_p_indexes_and_others(config, p_indexes, eval, output='./plots/{}/c_means/p_indexes_others.png'.format(config['dataset']))
 
     #make_plots(config, eval)
     save_log(config, eval)
     return eval
 
-def plot_p_indexes(config, p_indexes, output):
-    title = 'Dataset: {} Performance indexes for c-means fuzzy clustering with m={}'.format(config['dataset'], config['m'])
-    print(p_indexes)
-    fig = plt.figure(figsize=(13, 10))
-    plt.plot(p_indexes.keys(), p_indexes.values(), label='Performance indexes')
-    plt.title(title)
-    plt.xlabel('Clusters')
-    plt.ylabel('Performance index')
-    plt.savefig(output, bbox_inches='tight')
 
 def save_log(config, eval):
     """
@@ -125,6 +117,46 @@ def save_log(config, eval):
         df['linkage'] = config['linkage'] if config['clusteringAlg'] == 'agg' else 'None'
         df.to_csv(path, index=False)
 
+#### PLOT FUNCTIONS
+def plot_p_indexes(config, p_indexes, output):
+    title = 'Dataset: {} Performance indexes for c-means fuzzy clustering with m={}'.format(config['dataset'], config['m'])
+    print(p_indexes)
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(p_indexes.keys(), p_indexes.values(), label='Performance indexes')
+    plt.title(title)
+    plt.xlabel('Clusters')
+    plt.ylabel('Performance index')
+    plt.savefig(output, bbox_inches='tight')
+
+def plot_p_indexes_and_others(config, p_indexes, eval, output):
+    plt.style.use('seaborn-white')
+    fig = plt.figure(figsize=(30, 10))
+    colors = ['#689F38', '#039BE5', '#FF6F00', '#F44336', '#26C6DA']
+    plt.subplot(1, 3, 1)
+    plt.plot(eval.keys(), [d['ch'] for d in eval.values()], linestyle = 'solid', marker = 'o', color = colors[0],label='Calinski Harabasz index')
+    plt.legend()
+    plt.grid()
+    plt.title('Evaluation for Fuzzy Clustering: CH')
+    plt.xlabel('Clusters')
+    plt.ylabel('CH')
+
+    plt.subplot(1, 3, 2)
+    plt.plot(eval.keys(), [d['sil'] for d in eval.values()], linestyle = 'solid', marker = 'o', color = colors[1], label='Silhouette Score')
+    plt.plot(eval.keys(), [d['dbs'] for d in eval.values()], linestyle = 'solid', marker = 'o', color = colors[2], label='Davies-Bouldin index')
+    plt.legend()
+    plt.grid()
+    plt.title('Evaluation for Fuzzy Clustering: SC and DBI')
+    plt.xlabel('Clusters')
+    plt.ylabel('SC and DBI')
+
+    plt.subplot(1, 3, 3)
+    plt.plot(p_indexes.keys(), p_indexes.values(), linestyle = 'solid', marker = 'o', color = colors[3], label='Performance indexes')
+    plt.grid()
+    plt.title('Performance indexes. C-means fuzzy clustering with m={}'.format( config['m']))
+    plt.xlabel('Clusters')
+    plt.ylabel('Performance index')
+
+    plt.savefig(output, bbox_inches='tight')
 
 def make_plots(config, eval):
     if config['clusteringAlg'] == 'agg':
