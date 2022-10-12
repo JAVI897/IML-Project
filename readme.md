@@ -22,6 +22,7 @@ python main.py --dataset <dataset>
                --affinity <affinity>
                --linkage <linkage>
                --cluster_tend <cluster_tend>
+               --m <m>
 ```
 Specifying the parameters  according to the following table:
 
