@@ -24,6 +24,7 @@ def preprocess_vote():
     imputer = KNNImputer(n_neighbors=1)
     df_imputed = imputer.fit_transform(df)
     df_imputed = pd.DataFrame(df_imputed, columns=df.columns)
+    df_imputed = df_imputed.sort_values('democrat')
 
     Y = df_imputed['democrat']
     X = df_imputed.drop('democrat', axis=1)

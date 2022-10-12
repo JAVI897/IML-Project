@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from pandas.plotting import parallel_coordinates
 import seaborn as sns
-import prince
+#import prince
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import pandas as pd
@@ -130,19 +130,20 @@ def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, rename_tar
         plt.ylim(max_value, min_value)
         plt.savefig(output + 'parallel_coords_cluster_{}.jpg'.format(cluster), bbox_inches='tight')
 
+"""
 def correspondence_analysis_plots(X, Y, labels, output, hue = 'cluster', rename_target=None):
-    """
-    correspondence_analysis_plots
-    Function that given a dataset, the target variable and the clustering
-    labels, performs a Multiple correspondence analysis on X colouring
-    the plots by the variable specified in the hue parameter
+    
+    #correspondence_analysis_plots
+    #Function that given a dataset, the target variable and the clustering
+    #labels, performs a Multiple correspondence analysis on X colouring
+    #the plots by the variable specified in the hue parameter
 
-    :param X: nxd dataset
-    :param Y: target
-    :param labels: clustering labels
-    :param output: path
-    :param hue: colouring
-    """
+    #:param X: nxd dataset
+    #:param Y: target
+    #:param labels: clustering labels
+    #:param output: path
+    #:param hue: colouring
+    
     plt.style.use('seaborn-white')
     X.columns = [i.replace('_', '-').replace('-yes', '') for i in X.columns]
     mca = prince.MCA()
@@ -190,6 +191,7 @@ def correspondence_analysis_plots(X, Y, labels, output, hue = 'cluster', rename_
 
     ax.get_figure().savefig(output + 'coordinates_{}.jpg'.format(hue))
     plt.close()
+"""
 
 
 
