@@ -53,6 +53,7 @@ class FuzzyClustering():
         plt.savefig(output+'errors_c_means_c_{}'.format(self.n_clusters), bbox_inches='tight')
 
     def plot_u_matrix(self, output):
+        plt.style.use('seaborn-white')
         fig, axs = plt.subplots(nrows=self.n_clusters, ncols=1, figsize=(15, 12))
         plt.subplots_adjust(hspace=0.2)
         colors = ['#689F38', '#039BE5', '#FF6F00', '#C62828', '#03A9F4', '#5E35B1', '#FFCA28', '#26C6DA']
