@@ -62,7 +62,7 @@ class FuzzyClustering():
             ax.plot(list(range(self.N)), self.u[c], color = colors[c] if len(colors) > self.n_clusters else '#039BE5' )
             ax.set_title('Cluster {}'.format(c))
             ax.set_ylabel('Membership')
-        plt.savefig(output+'membership_c_means_c_{}'.format(self.n_clusters), bbox_inches='tight')
+        plt.savefig(output+'membership_c_means_c_{}'.format(self.n_clusters), bbox_inches='tight', dpi = 800)
 
     def compute_p(self, X, v, u):
         mean = np.mean(X, axis=0)

@@ -130,7 +130,7 @@ def plot_p_indexes(config, p_indexes, output):
 
 def plot_p_indexes_and_others(config, p_indexes, eval, output):
     plt.style.use('seaborn-white')
-    fig = plt.figure(figsize=(30, 10))
+    fig = plt.figure(figsize=(25, 8))
     colors = ['#689F38', '#039BE5', '#FF6F00', '#F44336', '#26C6DA']
     plt.subplot(1, 3, 1)
     plt.plot(eval.keys(), [d['ch'] for d in eval.values()], linestyle = 'solid', marker = 'o', color = colors[0],label='Calinski Harabasz index')
@@ -156,7 +156,7 @@ def plot_p_indexes_and_others(config, p_indexes, eval, output):
     plt.xlabel('Clusters')
     plt.ylabel('Performance index')
 
-    plt.savefig(output, bbox_inches='tight')
+    plt.savefig(output, bbox_inches='tight', dpi = 500)
 
 def make_plots(config, eval):
     if config['clusteringAlg'] == 'agg':
