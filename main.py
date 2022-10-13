@@ -1,6 +1,6 @@
 import argparse
-from datasets import preprocess_vote, preprocess_adult, preprocess_iris
-from evaluation import evaluate_clustering_number, cluster_tendency
+from datasets import preprocess_vote, preprocess_adult, preprocess_iris, preprocess_cmc, preprocess_hypothyroid
+from evaluation import evaluate_clustering_number, cluster_tendency, clusterElection_plot, ari_plot
 from sklearn.cluster import AgglomerativeClustering, MeanShift
 from visualize import bar_plot_vote, coordinate_plot, coordinate_plot_by_cluster, anova, chi2
 import pandas as pd
@@ -11,7 +11,7 @@ from algorithms import FuzzyClustering
 parser = argparse.ArgumentParser()
 
 ### run--> python3 main.py --dataset vote
-parser.add_argument("--dataset", type=str, default='vote', choices=['vote', 'adult', 'iris'])
+parser.add_argument("--dataset", type=str, default='vote', choices=['vote', 'adult', 'iris', 'cmc', 'hyp'])
 parser.add_argument("--clusteringAlg", type=str, default='agg', choices=['km', 'bkm', 'ms', 'agg', 'kmed', 'khm', 'fuzzy'])
 parser.add_argument("--max_num_clusters", type=int, default=10, choices=range(2,100))
 parser.add_argument("--num_clusters", type=int)
@@ -21,6 +21,7 @@ parser.add_argument("--linkage", type=str, default = 'ward', choices=['ward', 'c
 # Cluster tendency parameter
 parser.add_argument("--cluster_tend", type=bool, default=False)
 parser.add_argument("--m", type=int, default=2)
+parser.add_argument("--visualize_results", type=bool, default=False)
 con = parser.parse_args()
 
 def configuration():
@@ -32,12 +33,27 @@ def configuration():
                 'affinity': con.affinity,
                 'linkage': con.linkage,
                 'cluster_tend':con.cluster_tend,
-                'm':con.m
+                'm':con.m,
+                'visualize_results':con.visualize_results
              }
     return config
 
 def main():
     config = configuration()
+    if config['visualize_results']:
+        clusterElection_plot(config)
+        if config['dataset'] == 'vote':
+            ari_plot(config, {'fuzzy':2,'agg_euclidean_ward':2,'agg_euclidean_complete':2, 'agg_euclidean_average':2,
+                              'agg_euclidean_single':2, 'agg_cosine_complete':2, 'agg_cosine_average':2, 'agg_cosine_single':2})
+        if config['dataset'] == 'hyp':
+            ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
+                              'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
+                              'agg_cosine_single': 2})
+        if config['dataset'] == 'iris':
+            ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
+                              'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
+                              'agg_cosine_single': 3})
+        return
 
     if config['dataset'] == 'vote':
         X, Y = preprocess_vote()
@@ -47,6 +63,12 @@ def main():
 
     if config['dataset'] == 'iris':
         X, Y = preprocess_iris()
+
+    if config['dataset'] == 'cmc':
+        X, Y = preprocess_cmc()
+
+    if config['dataset'] == 'hyp':
+        X, Y = preprocess_hypothyroid()
 
     if config['cluster_tend']:
         cluster_tendency(X, config)

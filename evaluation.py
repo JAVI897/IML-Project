@@ -8,7 +8,8 @@ import pandas as pd
 import numpy as np
 from pyclustertend import hopkins, vat
 from algorithms import FuzzyClustering
-
+import seaborn as sns
+import math
 ##### CLUSTER TENDENCY FUNCTIONS
 
 def cluster_tendency(X, config):
@@ -50,12 +51,16 @@ def evaluate_clustering_number(config, X, Y):
     if config['clusteringAlg'] == 'ms':
         clustering = MeanShift()
         labels = clustering.fit_predict(X.values)
-        ari = adjusted_rand_score(Y, labels)
-        sil = silhouette_score(X.values, labels)
-        dbs = davies_bouldin_score(X.values, labels)
-        ch  = calinski_harabasz_score(X.values, labels)
-        n_clusters = len(np.unique(labels))
-        eval[n_clusters] = {'ari':round(ari, 3), 'sil': round(sil, 3), 'dbs': round(dbs, 3), 'ch': round(ch, 3)}
+        n_labels = len(np.unique(labels))
+        if n_labels > 1: # if meanshift founds just 1 cluster, evaluation measures do not make sense
+            ari = adjusted_rand_score(Y, labels)
+            sil = silhouette_score(X.values, labels)
+            dbs = davies_bouldin_score(X.values, labels)
+            ch  = calinski_harabasz_score(X.values, labels)
+            n_clusters = len(np.unique(labels))
+            eval[n_clusters] = {'ari':round(ari, 3), 'sil': round(sil, 3), 'dbs': round(dbs, 3), 'ch': round(ch, 3)}
+        else:
+            eval[n_labels] = {'ari': None, 'sil': None, 'dbs': None, 'ch': None}
         save_log(config, eval)
         return eval
 
@@ -158,14 +163,89 @@ def plot_p_indexes_and_others(config, p_indexes, eval, output):
 
     plt.savefig(output, bbox_inches='tight', dpi = 500)
 
-def make_plots(config, eval):
-    if config['clusteringAlg'] == 'agg':
-        name = 'Dataset-{}--AgglomerativeClustering-{}-{}.png'.format(config['dataset'], config['affinity'], config['linkage'])
-        title = 'Evaluation for AgglomerativeClustering - Dataset: {} - Affinity: {} - Linkage: {}'.format(config['dataset'], config['affinity'], config['linkage'])
 
-    fig = plt.figure(figsize = (20, 10))
-    plt.plot(eval.keys(), [d['ari'] for d in eval.values()], label = 'Adjusted Rand Index')
-    plt.plot(eval.keys(), [d['sil'] for d in eval.values()], label='Silhouette Score')
-    plt.title(title)
-    plt.legend()
-    plt.savefig('./plots/{}/{}'.format(config['dataset'], name), bbox_inches='tight')
+def clusterElection_plot(config):
+    """
+    Given the name of the dataset,
+    this function plots a multiple line plot for each algorithm result.
+
+    :param config: config dict
+    :param output: results path
+    """
+    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv'}
+    X = pd.read_csv(path_dataset[config['dataset']])
+
+    X["plot_name"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"]
+    X["plot_name"] = X["plot_name"].apply(lambda x: x.replace('_None_None', ''))
+    X = X[X["clusteringAlg"] != "ms"]
+    X_melt = pd.melt(X, id_vars=["plot_name", "Number of clusters"], value_vars=["sil", "dbs"], var_name="metrics")
+
+    #print(min(X_melt["metrics"]))
+    alg_list = X_melt["plot_name"].unique()
+
+    #plt.style.use('seaborn-white')
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(math.ceil(len(alg_list) / 4), 4, figsize=(25, 15))
+    for n, alg in enumerate(alg_list):
+        x_subset = X_melt[X_melt["plot_name"] == alg]
+
+        sns.lineplot(data=x_subset, x="Number of clusters", y="value", hue="metrics", style="metrics", markers=['o', 'o'], dashes=False,
+                     ax=ax[n // 4, n - (n // 4) * 4]).set(title=alg, ylabel='Evaluation for Fuzzy Clustering: SC and DBI',
+                                                          ylim=(min(X_melt["value"]+0.1), max(X_melt["value"]+0.1)))
+
+    output = './plots/{}/clusterElection_sil_dbs.jpg'.format(config['dataset'])
+    plt.savefig(output, bbox_inches='tight')
+
+    ## calinski_harabasz_score
+    X = pd.read_csv(path_dataset[config['dataset']])
+
+    X["plot_name"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"]
+    X["plot_name"] = X["plot_name"].apply(lambda x: x.replace('_None_None', ''))
+    X = X[X["clusteringAlg"] != "ms"]
+    X_melt = pd.melt(X, id_vars=["plot_name", "Number of clusters"], value_vars=["ch"], var_name="metrics")
+
+    #print(min(X_melt["metrics"]))
+    alg_list = X_melt["plot_name"].unique()
+
+    #plt.style.use('seaborn-white')
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(math.ceil(len(alg_list) / 4), 4, figsize=(25, 15))
+    for n, alg in enumerate(alg_list):
+        x_subset = X_melt[X_melt["plot_name"] == alg]
+
+        sns.lineplot(data=x_subset, x="Number of clusters", y="value", hue="metrics", style="metrics", markers=['o'], dashes=False,
+                     ax=ax[n // 4, n - (n // 4) * 4]).set(title=alg, ylabel='Evaluation for Fuzzy Clustering: CH',
+                                                          ylim=(min(X_melt["value"] + 0.1), max(X_melt["value"] + 0.1)))
+
+    output = './plots/{}/clusterElection_ch.jpg'.format(config['dataset'])
+    plt.savefig(output, bbox_inches='tight')
+
+
+def ari_plot(config, n_clust_alg_dict):
+    """
+    Given the name of the dataset,
+    this function plots a multiple line plot for each algorithm result.
+
+    :param config: config dict
+    :param n_clust_alg_dict: number of clusters selected per algorithm
+    """
+    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv'}
+    X = pd.read_csv(path_dataset[config['dataset']])
+
+    X["algorithm"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"] + "_" + X['Number of clusters'].astype(str)
+    X["algorithm"] = X["algorithm"].apply(lambda x: x.replace('_None_None', ''))
+
+    colors = ['#689F38', '#039BE5', '#FF6F00', '#F44336', '#26C6DA', '#FFC107', '#E91E63']
+    filter_algs = ['{}_{}'.format(k, v) for k, v in n_clust_alg_dict.items()]
+    X = X.loc[X['algorithm'].isin(filter_algs)]
+    X_melt = pd.melt(X, id_vars=["algorithm"], value_vars=["ari"], var_name="metrics")
+    X_melt = X_melt.sort_values('value')
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(figsize=(20, 10))
+    sns.barplot(data=X_melt, x="algorithm", y="value", orient='v').set(title="ARI results")
+    ax.bar_label(ax.containers[0], padding=3)
+    ax.set_ylabel('ARI')
+    ax.set_xlabel('')
+
+    output = './plots/{}/ari.jpg'.format(config['dataset'])
+    plt.savefig(output, bbox_inches='tight')

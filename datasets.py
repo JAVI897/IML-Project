@@ -9,6 +9,91 @@ from sklearn.preprocessing import RobustScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import KNNImputer
 
+def preprocess_hypothyroid():
+    file_name = './datasets/hypothyroid.arff'
+    data = arff.loadarff(file_name)
+    df = pd.DataFrame(data[0])
+    df = df.applymap(lambda x: x.decode('utf-8') if type(x) != float else x)
+
+    # drop column with missing values
+
+    df = df.drop('TBG', axis=1)
+    df = df.drop('TBG_measured', axis=1) # column with just one value
+    df = df.replace('?', np.nan) # convert ? to nan
+
+    # fill columns with missing values with the median of the column
+    missing_values_columns = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
+    for c_missing in missing_values_columns:
+        df[c_missing] = df[c_missing].fillna(df[c_missing].median())
+
+    df['sex'] = df['sex'].fillna(df['sex'].mode().values[0])
+
+    ### dummy variables
+    binary_vbles = ['sex', 'on_thyroxine', 'query_on_thyroxine',
+                     'on_antithyroid_medication', 'sick', 'pregnant', 'thyroid_surgery',
+                     'I131_treatment', 'query_hypothyroid', 'query_hyperthyroid', 'lithium',
+                     'goitre', 'tumor', 'hypopituitary', 'psych', 'TSH_measured',
+                     'T3_measured', 'TT4_measured', 'T4U_measured',
+                     'FTI_measured']
+    for c in binary_vbles:
+        df[c] = LabelEncoder().fit_transform(df[c])
+        df[c] = df[c].astype(int)
+
+    one_hot_referral = pd.get_dummies(df['referral_source'])
+    df = pd.concat([one_hot_referral, df], axis=1, sort=False)
+    df = df.drop('referral_source', axis = 1)
+
+    numeric_vbles = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
+    for c in numeric_vbles:
+        df[c] = StandardScaler().fit_transform(df[c].values.reshape(-1, 1))
+
+    df['Class'] = df['Class'].replace({'negative': 0, 'compensated_hypothyroid': 1, 'primary_hypothyroid': 1,
+                                       'secondary_hypothyroid': 1}) # convert to binary class
+    df = df.sort_values('Class')
+
+    Y = df['Class']
+    X = df.drop('Class', axis = 1)
+    return X, Y
+
+def preprocess_cmc():
+    file_name = './datasets/cmc.arff'
+    data = arff.loadarff(file_name)
+    df = pd.DataFrame(data[0])
+
+    # categorical variables
+    categorical = ['weducation', 'heducation', 'wreligion', 'wworking', 'hoccupation', 'living_index', 'media_exposure', 'class']
+    df[categorical] = df[categorical].applymap(lambda x: x.decode('utf-8'))
+
+    ##One Hot Encoder
+    transformer_one_hot = make_column_transformer(
+        (OneHotEncoder(sparse=False),
+         ['weducation', 'heducation', 'hoccupation', 'living_index']),
+        remainder='passthrough')
+
+    transformed = transformer_one_hot.fit_transform(df)
+    transformed_df = pd.DataFrame(transformed, columns=['weducation_1', 'weducation_2', 'weducation_3', 'weducation_4',
+                                                        'heducation_1', 'heducation_2', 'heducation_3', 'heducation_4',
+                                                        'hoccupation_1', 'hoccupation_2', 'hoccupation_3',
+                                                        'hoccupation_4',
+                                                        'living_index_1', 'living_index_2', 'living_index_3',
+                                                        'living_index_4',
+                                                        'wage', 'children', 'wreligion', 'wworking', 'media_exposure',
+                                                        'class'])
+    # numerical variables
+    ##normalize
+    numerical = ['wage', 'children']
+    transformer_numerical = make_column_transformer((StandardScaler(), numerical), remainder='drop')
+    transformed_df[numerical] = transformer_numerical.fit_transform(df)
+
+    # order
+    transformed_df = transformed_df.sort_values('class')
+    transformed_df = transformed_df.astype(float)
+
+    Y = transformed_df['class']
+    X = transformed_df.drop('class', axis = 1)
+
+    return X, Y
+
 def preprocess_vote():
 
     file_name = './datasets/vote.arff'
