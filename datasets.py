@@ -47,8 +47,8 @@ def preprocess_hypothyroid():
     for c in numeric_vbles:
         df[c] = StandardScaler().fit_transform(df[c].values.reshape(-1, 1))
 
-    df['Class'] = df['Class'].replace({'negative': 0, 'compensated_hypothyroid': 1, 'primary_hypothyroid': 1,
-                                       'secondary_hypothyroid': 1}) # convert to binary class
+    df['Class'] = df['Class'].replace({'negative': 0, 'compensated_hypothyroid': 1, 'primary_hypothyroid': 2,
+                                       'secondary_hypothyroid': 3})
     df = df.sort_values('Class')
 
     Y = df['Class']
