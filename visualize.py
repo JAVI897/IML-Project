@@ -5,6 +5,7 @@ import seaborn as sns
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import pandas as pd
+from sklearn.metrics import confusion_matrix
 
 ##### STATISTICAL TEST FUNCTIONS
 def chi2(X, labels, vbles_to_perform_x2, output):
@@ -53,6 +54,15 @@ def anova(X, labels, vbles_to_perform_anova, output):
         dict['Vble'].append(vble_num)
     anovas_results = pd.DataFrame(dict)
     anovas_results.to_csv(output+'anova.csv', index=False)
+
+##### CONFUSION MATRIX
+def confusion_matrix_compute(labels, Y, output):
+    conf_mat = pd.crosstab(labels, Y)
+    fig = plt.figure(figsize=(10, 10))
+    sns.heatmap(conf_mat, annot=True, fmt='g', cmap='Oranges')
+    plt.savefig(output + 'confusion_matrix.jpg', bbox_inches='tight', dpi = 500)
+    #print(conf_mat)
+
 
 ##### VISUALIZATION FUNCTIONS
 

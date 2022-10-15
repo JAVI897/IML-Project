@@ -2,7 +2,7 @@ import argparse
 from datasets import preprocess_vote, preprocess_adult, preprocess_iris, preprocess_cmc, preprocess_hypothyroid
 from evaluation import evaluate_clustering_number, cluster_tendency, clusterElection_plot, ari_plot
 from sklearn.cluster import AgglomerativeClustering, MeanShift
-from visualize import bar_plot_vote, coordinate_plot, coordinate_plot_by_cluster, anova, chi2
+from visualize import bar_plot_vote, coordinate_plot, coordinate_plot_by_cluster, anova, chi2, confusion_matrix_compute
 import pandas as pd
 import matplotlib.pyplot as plt
 from algorithms import FuzzyClustering
@@ -96,13 +96,19 @@ def main():
             labels = clustering.fit_predict(X.values)
 
         if config['dataset'] == 'vote':
+            confusion_matrix_compute(labels, Y.replace({0:'republican', 1:'democrat'}), output='./plots/vote/')
             vbles_to_perform_x2 = X.columns
             chi2(X.copy(), labels, vbles_to_perform_x2, output = './results/vote_' )
             bar_plot_vote(X.copy(), Y.copy(), labels, output = './plots/vote/', rename_target={0:'republican', 1:'democrat'})
-            correspondence_analysis_plots(X.copy(), Y.copy(), labels, output = './plots/vote/', hue='cluster', rename_target={0:'republican', 1:'democrat'})
-            correspondence_analysis_plots(X.copy(), Y.copy(), labels, output ='./plots/vote/', hue='target',   rename_target={0: 'republican', 1: 'democrat'})
+            #correspondence_analysis_plots(X.copy(), Y.copy(), labels, output = './plots/vote/', hue='cluster', rename_target={0:'republican', 1:'democrat'})
+            #correspondence_analysis_plots(X.copy(), Y.copy(), labels, output ='./plots/vote/', hue='target',   rename_target={0: 'republican', 1: 'democrat'})
+
+        if config['dataset'] == 'hyp':
+            confusion_matrix_compute(labels, Y.replace({'negative': 0, 'compensated_hypothyroid': 1, 'primary_hypothyroid': 2,
+                                                        'secondary_hypothyroid': 3}), output='./plots/hyp/')
 
         if config['dataset'] == 'iris':
+            confusion_matrix_compute(labels, Y, output='./plots/iris/')
             columns_to_plot = [ 'standardscaler__petalwidth', 'standardscaler__petallength',
                                 'standardscaler__sepalwidth', 'standardscaler__sepallength']
             #coordinate_plot(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/iris/')
