@@ -14,17 +14,19 @@ def preprocess_hypothyroid():
     data = arff.loadarff(file_name)
     df = pd.DataFrame(data[0])
     df = df.applymap(lambda x: x.decode('utf-8') if type(x) != float else x)
-
+    df = df.drop([1364], axis=0) # there is a patient with 455 years; outlier
     # drop column with missing values
 
     df = df.drop('TBG', axis=1)
     df = df.drop('TBG_measured', axis=1) # column with just one value
     df = df.replace('?', np.nan) # convert ? to nan
 
-    # fill columns with missing values with the median of the column
+    # fill columns with missing values with the nearest neighbour
     missing_values_columns = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
-    for c_missing in missing_values_columns:
-        df[c_missing] = df[c_missing].fillna(df[c_missing].median())
+    #for c_missing in missing_values_columns:
+        #df[c_missing] = df[c_missing].fillna(df[c_missing].median())
+    imputer = KNNImputer(n_neighbors=1)
+    df[missing_values_columns] = imputer.fit_transform(df[missing_values_columns].values)
 
     df['sex'] = df['sex'].fillna(df['sex'].mode().values[0])
 
@@ -45,7 +47,7 @@ def preprocess_hypothyroid():
 
     numeric_vbles = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
     for c in numeric_vbles:
-        df[c] = StandardScaler().fit_transform(df[c].values.reshape(-1, 1))
+        df[c] = RobustScaler().fit_transform(df[c].values.reshape(-1, 1))
 
     df['Class'] = df['Class'].replace({'negative': 0, 'compensated_hypothyroid': 1, 'primary_hypothyroid': 2,
                                        'secondary_hypothyroid': 3})
