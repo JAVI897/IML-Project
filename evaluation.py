@@ -1,5 +1,6 @@
 import os
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import MeanShift
 from sklearn.metrics.cluster import adjusted_rand_score
@@ -218,6 +219,35 @@ def clusterElection_plot(config):
                                                           ylim=(min(X_melt["value"] + 0.1), max(X_melt["value"] + 0.1)))
 
     output = './plots/{}/clusterElection_ch.jpg'.format(config['dataset'])
+    plt.savefig(output, bbox_inches='tight')
+
+    X = pd.read_csv(path_dataset[config['dataset']])
+
+    X["plot_name"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"]
+    X["plot_name"] = X["plot_name"].apply(lambda x: x.replace('_None_None', ''))
+    X = X[X["clusteringAlg"] != "ms"]
+    X_melt_sil_dbs = pd.melt(X, id_vars=["plot_name", "Number of clusters"], value_vars=["sil", "dbs"], var_name="metrics")
+    X_melt_ch = pd.melt(X, id_vars=["plot_name", "Number of clusters"], value_vars=["ch"], var_name="metrics")
+    #print(min(X_melt["metrics"]))
+    alg_list = X_melt_sil_dbs["plot_name"].unique()
+
+    #plt.style.use('seaborn-white')
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(math.ceil(len(alg_list) / 4), 4, figsize=(32, 15))
+    for n, alg in enumerate(alg_list):
+        x_subset_sil_dbs = X_melt_sil_dbs[X_melt_sil_dbs["plot_name"] == alg]
+        x_subset_ch = X_melt_ch[X_melt_ch["plot_name"] == alg]
+
+        g = sns.lineplot(data=x_subset_sil_dbs, x="Number of clusters", y="value", hue="metrics", style="metrics", markers=['o', 'o'], dashes=False,
+                     ax=ax[n // 4, n - (n // 4) * 4], legend = False).set(title=alg, ylabel='SC and DBI')
+        sns.lineplot(data=x_subset_ch, x="Number of clusters", y="value", color='r', marker='o', dashes=False,
+                     ax=ax[n // 4, n - (n // 4) * 4].twinx()).set(title=alg, ylabel='CH')
+        ax[n // 4, n - (n // 4) * 4].legend(handles=[Line2D([], [], marker='o', color="orange", label='DBI'),
+                                                     Line2D([], [], marker='o', color="dodgerblue", label='SC'),
+                                                     Line2D([], [], marker='o', color="r", label='CH')],
+                                            loc='upper right')
+
+    output = './plots/{}/clusterElection_sil_dbs_ch.jpg'.format(config['dataset'])
     plt.savefig(output, bbox_inches='tight')
 
 
