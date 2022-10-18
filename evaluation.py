@@ -8,7 +8,7 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bo
 import pandas as pd
 import numpy as np
 from pyclustertend import hopkins, vat
-from algorithms import FuzzyClustering
+from algorithms import FuzzyClustering, KMeans, KMedians, BKM
 import seaborn as sns
 import math
 ##### CLUSTER TENDENCY FUNCTIONS
@@ -71,8 +71,15 @@ def evaluate_clustering_number(config, X, Y):
             clustering = AgglomerativeClustering(n_clusters = n, affinity=config['affinity'], linkage=config['linkage'])
         if config['clusteringAlg'] == 'fuzzy':
             clustering = FuzzyClustering(n_clusters = n, m = config['m'])
+        if config['clusteringAlg'] == 'km':
+            clustering = KMeans(n_clusters=n)
+        if config['clusteringAlg'] == 'kmed':
+            clustering = KMedians(n_clusters=n)
+        if config['clusteringAlg'] == 'bkm':
+            clustering = BKM(n_clusters=n)
 
         labels = clustering.fit_predict(X.values)
+        print(labels)
         ari = adjusted_rand_score(Y, labels)
         sil = silhouette_score(X.values, labels)
         dbs = davies_bouldin_score(X.values, labels)

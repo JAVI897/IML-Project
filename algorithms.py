@@ -1,21 +1,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import manhattan_distances, euclidean_distances
+from scipy.spatial.distance import cdist
 
 class FuzzyClustering():
     def __init__(self, n_clusters, m, epsilon = 1e-5, max_iterations=80):
         self.m = m
         self.n_clusters = n_clusters
         self.epsilon = epsilon
-        self.error_convergence = 0.001
+        self.error_convergence = 0.01
         self.max_iterations = max_iterations
 
     def fit_predict(self, X):
         X = X
         N = X.shape[0]
-        np.random.seed(155)
-        random_data_points = np.random.randint(0, high=N, size=self.n_clusters )
-        v = [X[i]+self.epsilon for i in random_data_points]
+        np.random.seed(34)
+        #random_data_points = np.random.randint(0, high=N, size=self.n_clusters )
+
+        # get far apart centroids
+        dist_matrix = euclidean_distances(X, X)
+        random_row = dist_matrix[np.random.randint(0, high=N, size=1 ),:]
+        distant_points = np.argsort(random_row)[0][::-1]
+
+        v = [X[i]+self.epsilon for i in distant_points]
 
         iter = 0
         errors = []
@@ -62,6 +69,7 @@ class FuzzyClustering():
             ax.plot(list(range(self.N)), self.u[c], color = colors[c] if len(colors) > self.n_clusters else '#039BE5' )
             ax.set_title('Cluster {}'.format(c))
             ax.set_ylabel('Membership')
+            ax.set_ylim(0, 1)
         plt.savefig(output+'membership_c_means_c_{}'.format(self.n_clusters), bbox_inches='tight', dpi = 800)
 
     def compute_p(self, X, v, u):
@@ -103,6 +111,8 @@ class KMeans():
         x = np.array(x, dtype=np.float32)
         k = self.n_clusters
         n = np.size(x, 0)
+        np.random.seed(5)
+
         cluster_centers = x[np.random.choice(range(0, n), k, False)]
         clusters = np.empty((k, 0))
         old_clusters = []
@@ -116,9 +126,12 @@ class KMeans():
             cluster_distances = np.zeros((n, k))
             for cluster in range(k):
                 cluster_distances[:, cluster] = np.sum(np.sqrt((x - cluster_centers[cluster])**2), 1)
-
+            #print(cluster_distances)
             # "clusters" works as the indexes for the data belonging to each cluster
             clusters = np.argmin(cluster_distances, 1)
+            print('-----')
+            for c in range(k):
+                print(x[clusters == c].shape[0])
             cluster_centers = np.array(
                 [np.mean(x[clusters == c], 0) for c in range(k)])
 
@@ -156,7 +169,7 @@ class KMedians():
             # "clusters" works as the indexes for the data belonging to each cluster
             clusters = np.argmin(cluster_distances, 1)
             cluster_centers = np.array(
-                [np.mean(x[clusters == c], 0) for c in range(k)])
+                [np.median(x[clusters == c], 0) for c in range(k)])
 
             if old_clusters.tolist() == clusters.tolist():
                 equal = 1 
