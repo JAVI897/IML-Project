@@ -5,7 +5,7 @@ from sklearn.cluster import AgglomerativeClustering, MeanShift
 from visualize import bar_plot_vote, coordinate_plot, coordinate_plot_by_cluster, anova, chi2, confusion_matrix_compute
 import pandas as pd
 import matplotlib.pyplot as plt
-from algorithms import FuzzyClustering
+from algorithms import FuzzyClustering, KMeans, KMedians, BKM
 ### Clustering Algorithms
 
 parser = argparse.ArgumentParser()
@@ -93,6 +93,18 @@ def main():
 
         if config['clusteringAlg'] == 'fuzzy':
             clustering = FuzzyClustering(n_clusters=config['num_clusters'], m=config['m'])
+            labels = clustering.fit_predict(X.values)
+
+        if config['clusteringAlg'] == 'km':
+            clustering = KMeans(n_clusters=config['num_clusters'])
+            labels = clustering.fit_predict(X.values)
+
+        if config['clusteringAlg'] == 'kmed':
+            clustering = KMedians(n_clusters=config['num_clusters'])
+            labels = clustering.fit_predict(X.values)
+
+        if config['clusteringAlg'] == 'bkm':
+            clustering = BKM(n_clusters=config['num_clusters'])
             labels = clustering.fit_predict(X.values)
 
         if config['dataset'] == 'vote':

@@ -92,3 +92,123 @@ class FuzzyClustering():
             num = np.sum([(u[cluster][ind] ** self.m) * x_i for ind, x_i in enumerate(X)], axis=0)
             new_v.append(num/denom)
         return new_v
+
+
+class KMeans():
+    def __init__(self, n_clusters, max_iterations=80):
+        self.n_clusters = n_clusters
+        self.max_iterations = max_iterations
+
+    def fit_predict(self, x):
+        x = np.array(x, dtype=np.float32)
+        k = self.n_clusters
+        n = np.size(x, 0)
+        cluster_centers = x[np.random.choice(range(0, n), k, False)]
+        clusters = np.empty((k, 0))
+        old_clusters = []
+
+        equal = 0
+        iter = 0
+
+        while not equal or iter < self.max_iterations:
+            old_clusters = clusters
+
+            cluster_distances = np.zeros((n, k))
+            for cluster in range(k):
+                cluster_distances[:, cluster] = np.sum(np.sqrt((x - cluster_centers[cluster])**2), 1)
+
+            # "clusters" works as the indexes for the data belonging to each cluster
+            clusters = np.argmin(cluster_distances, 1)
+            cluster_centers = np.array(
+                [np.mean(x[clusters == c], 0) for c in range(k)])
+
+            if old_clusters.tolist() == clusters.tolist():
+                equal = 1 
+
+            iter += 1
+
+        return clusters
+
+
+class KMedians():
+    def __init__(self, n_clusters, max_iterations=80):
+        self.n_clusters = n_clusters
+        self.max_iterations = max_iterations
+
+    def fit_predict(self, x):
+        x = np.array(x, dtype=np.float32)
+        k = self.n_clusters
+        n = np.size(x, 0)
+        cluster_centers = x[np.random.choice(range(0, n), k, False)]
+        clusters = np.empty((k, 0))
+        old_clusters = []
+
+        equal = 0
+        iter = 0
+
+        while not equal or iter < self.max_iterations:
+            old_clusters = clusters
+
+            cluster_distances = np.zeros((n, k))
+            for cluster in range(k):
+                cluster_distances[:, cluster] = np.sum(np.abs(x - cluster_centers[cluster]), 1)
+
+            # "clusters" works as the indexes for the data belonging to each cluster
+            clusters = np.argmin(cluster_distances, 1)
+            cluster_centers = np.array(
+                [np.mean(x[clusters == c], 0) for c in range(k)])
+
+            if old_clusters.tolist() == clusters.tolist():
+                equal = 1 
+
+            iter += 1
+
+        return clusters
+
+
+class BKM():
+    def __init__(self, n_clusters, max_iterations=80):
+        self.n_clusters = n_clusters
+        self.max_iterations = max_iterations
+
+    def fit_predict(self, x):
+
+        k = self.n_clusters
+        clusters = np.zeros(len(x))
+        input = np.array(x)
+        n = 0
+        max_c = 0
+        num_c = 1
+        
+        clustering = KMeans(n_clusters=2)
+
+        while num_c < k:
+            kmeans = clustering.fit_predict(input)
+            kmeans += n #we increment by 2 the cluster indexes on each iteration to avoid cluster merging
+
+            if k == 2: return kmeans
+
+            #rewrite the "clusters" array to subsitute the processed cluster by its 2 bisections
+            for c in range(len(clusters)):
+                if clusters[c] == max_c:
+                    clusters[c], kmeans = kmeans[0], kmeans[1:]
+
+            #find the cluster with the highest number of elements
+            unique, counts = np.unique(clusters, return_counts=True)
+            d = dict(zip(unique, counts))
+            max_c = max(d, key=d.get)
+
+            #set as input for the next iteration the cluster with the maximum number of elements
+            input = x[clusters == max_c]      
+
+            n += 2
+            num_c += 1
+        
+        #change the cluster numbers starting from zero to k
+        i = 0
+        for c in np.unique(clusters):
+            clusters[np.argwhere(clusters == (c).flatten().tolist())] = i
+            i += 1
+
+        clusters = np.array(clusters, dtype=int)
+        return clusters
