@@ -1,20 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import manhattan_distances, euclidean_distances
-from scipy.spatial.distance import cdist
 
 class FuzzyClustering():
     def __init__(self, n_clusters, m, epsilon = 1e-5, max_iterations=80):
         self.m = m
         self.n_clusters = n_clusters
         self.epsilon = epsilon
-        self.error_convergence = 0.01
+        self.error_convergence = 0.001
         self.max_iterations = max_iterations
 
     def fit_predict(self, X):
         X = X
         N = X.shape[0]
-        np.random.seed(34)
+        np.random.seed(155)
         #random_data_points = np.random.randint(0, high=N, size=self.n_clusters )
 
         # get far apart centroids
@@ -126,12 +125,10 @@ class KMeans():
             cluster_distances = np.zeros((n, k))
             for cluster in range(k):
                 cluster_distances[:, cluster] = np.sum(np.sqrt((x - cluster_centers[cluster])**2), 1)
-            #print(cluster_distances)
+
             # "clusters" works as the indexes for the data belonging to each cluster
             clusters = np.argmin(cluster_distances, 1)
-            print('-----')
-            for c in range(k):
-                print(x[clusters == c].shape[0])
+
             cluster_centers = np.array(
                 [np.mean(x[clusters == c], 0) for c in range(k)])
 

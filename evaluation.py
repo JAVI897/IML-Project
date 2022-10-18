@@ -1,6 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.ticker import StrMethodFormatter
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import MeanShift
 from sklearn.metrics.cluster import adjusted_rand_score
@@ -67,6 +68,7 @@ def evaluate_clustering_number(config, X, Y):
 
     p_indexes = {}
     for n in range(2, config['max_num_clusters']):
+        print('[INFO] Testing for k = {} clusters'.format(n))
         if config['clusteringAlg'] == 'agg':
             clustering = AgglomerativeClustering(n_clusters = n, affinity=config['affinity'], linkage=config['linkage'])
         if config['clusteringAlg'] == 'fuzzy':
@@ -79,7 +81,6 @@ def evaluate_clustering_number(config, X, Y):
             clustering = BKM(n_clusters=n)
 
         labels = clustering.fit_predict(X.values)
-        print(labels)
         ari = adjusted_rand_score(Y, labels)
         sil = silhouette_score(X.values, labels)
         dbs = davies_bouldin_score(X.values, labels)
@@ -186,6 +187,7 @@ def clusterElection_plot(config):
     X["plot_name"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"]
     X["plot_name"] = X["plot_name"].apply(lambda x: x.replace('_None_None', ''))
     X = X[X["clusteringAlg"] != "ms"]
+    X = X[X["clusteringAlg"] != "fuzzy"]
     X_melt = pd.melt(X, id_vars=["plot_name", "Number of clusters"], value_vars=["sil", "dbs"], var_name="metrics")
 
     #print(min(X_melt["metrics"]))
@@ -233,29 +235,34 @@ def clusterElection_plot(config):
     X["plot_name"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"]
     X["plot_name"] = X["plot_name"].apply(lambda x: x.replace('_None_None', ''))
     X = X[X["clusteringAlg"] != "ms"]
+    X = X[X["clusteringAlg"] != "fuzzy"]
     X_melt_sil_dbs = pd.melt(X, id_vars=["plot_name", "Number of clusters"], value_vars=["sil", "dbs"], var_name="metrics")
     X_melt_ch = pd.melt(X, id_vars=["plot_name", "Number of clusters"], value_vars=["ch"], var_name="metrics")
     #print(min(X_melt["metrics"]))
     alg_list = X_melt_sil_dbs["plot_name"].unique()
 
     #plt.style.use('seaborn-white')
-    sns.set_style("whitegrid")
-    fig, ax = plt.subplots(math.ceil(len(alg_list) / 4), 4, figsize=(32, 15))
+    #sns.set_style("whitegrid")
+    plt.style.use('seaborn-white')
+    fig, ax = plt.subplots(math.ceil(len(alg_list) / 3), 3, figsize=(32, 35))
     for n, alg in enumerate(alg_list):
         x_subset_sil_dbs = X_melt_sil_dbs[X_melt_sil_dbs["plot_name"] == alg]
         x_subset_ch = X_melt_ch[X_melt_ch["plot_name"] == alg]
 
         g = sns.lineplot(data=x_subset_sil_dbs, x="Number of clusters", y="value", hue="metrics", style="metrics", markers=['o', 'o'], dashes=False,
-                     ax=ax[n // 4, n - (n // 4) * 4], legend = False).set(title=alg, ylabel='SC and DBI')
+                     ax=ax[n // 3, n - (n // 3) * 3], legend = False).set(title=alg, ylabel='SC and DBI')
         sns.lineplot(data=x_subset_ch, x="Number of clusters", y="value", color='r', marker='o', dashes=False,
-                     ax=ax[n // 4, n - (n // 4) * 4].twinx()).set(title=alg, ylabel='CH')
-        ax[n // 4, n - (n // 4) * 4].legend(handles=[Line2D([], [], marker='o', color="orange", label='DBI'),
+                     ax=ax[n // 3, n - (n // 3) * 3].twinx()).set(title=alg, ylabel='CH')
+        ax[n // 3, n - (n // 3) * 3].legend(handles=[Line2D([], [], marker='o', color="orange", label='DBI'),
                                                      Line2D([], [], marker='o', color="dodgerblue", label='SC'),
                                                      Line2D([], [], marker='o', color="r", label='CH')],
                                             loc='upper right')
+        ax[n // 3, n - (n // 3) * 3].grid(True)
 
+    ax[3,2].set_axis_off()
+    ax[3,1].set_axis_off()
     output = './plots/{}/clusterElection_sil_dbs_ch.jpg'.format(config['dataset'])
-    plt.savefig(output, bbox_inches='tight')
+    plt.savefig(output, bbox_inches='tight', dpi = 500)
 
 
 def ari_plot(config, n_clust_alg_dict):

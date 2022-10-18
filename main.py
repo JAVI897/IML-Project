@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 ### run--> python3 main.py --dataset vote
 parser.add_argument("--dataset", type=str, default='vote', choices=['vote', 'adult', 'iris', 'cmc', 'hyp'])
 parser.add_argument("--clusteringAlg", type=str, default='agg', choices=['km', 'bkm', 'ms', 'agg', 'kmed', 'fuzzy'])
-parser.add_argument("--max_num_clusters", type=int, default=10, choices=range(2,100))
+parser.add_argument("--max_num_clusters", type=int, default=7, choices=range(2,100))
 parser.add_argument("--num_clusters", type=int)
 # For Agglomerative clustering parameters
 parser.add_argument("--affinity", type=str, default = 'euclidean', choices=['euclidean', 'cosine'])

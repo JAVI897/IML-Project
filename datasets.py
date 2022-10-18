@@ -165,10 +165,10 @@ def preprocess_iris():
     df["class"] = df["class"].str.decode('utf-8')
 
     # Numerical variables
-    transformer_numerical = make_column_transformer((StandardScaler(), ['petalwidth', 'petallength', 'sepalwidth', 'sepallength']), remainder='passthrough')
-    transformed_numerical = transformer_numerical.fit_transform(df)
-    transformed_numerical = pd.DataFrame(transformed_numerical, columns=transformer_numerical.get_feature_names_out())
+    numeric_vbles = ['petalwidth', 'petallength', 'sepalwidth', 'sepallength']
+    for c in numeric_vbles:
+        df[c] = StandardScaler().fit_transform(df[c].values.reshape(-1, 1))
 
-    Y = transformed_numerical['remainder__class']
-    X = transformed_numerical.drop('remainder__class', axis = 1)
+    Y = df['class']
+    X = df.drop('class', axis = 1)
     return X, Y
