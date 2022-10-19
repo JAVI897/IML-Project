@@ -53,5 +53,5 @@ Number of clusters,ari,sil,dbs,ch,dataset,clusteringAlg,affinity,linkage
 2,0.531,0.561,0.651,233.648,iris,fuzzy,None,None
 3,0.677,0.455,0.844,234.748,iris,fuzzy,None,None
 4,0.622,0.374,1.026,189.227,iris,fuzzy,None,None
-5,0.617,0.325,1.262,150.052,iris,fuzzy,None,None
-6,0.583,0.365,1.175,141.114,iris,fuzzy,None,None
+5,0.444,0.323,1.013,193.251,iris,fuzzy,None,None
+6,0.435,0.257,1.254,161.435,iris,fuzzy,None,None

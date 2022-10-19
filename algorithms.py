@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import manhattan_distances, euclidean_distances
+from sklearn.cluster import AgglomerativeClustering
 
 class FuzzyClustering():
     def __init__(self, n_clusters, m, epsilon = 1e-5, max_iterations=80):
@@ -14,14 +15,10 @@ class FuzzyClustering():
         X = X
         N = X.shape[0]
         np.random.seed(155)
-        #random_data_points = np.random.randint(0, high=N, size=self.n_clusters )
 
-        # get far apart centroids
-        dist_matrix = euclidean_distances(X, X)
-        random_row = dist_matrix[np.random.randint(0, high=N, size=1 ),:]
-        distant_points = np.argsort(random_row)[0][::-1]
-
-        v = [X[i]+self.epsilon for i in distant_points]
+        #initialize centroids using agglomerativeclustering
+        labels = AgglomerativeClustering(n_clusters=self.n_clusters).fit_predict(X)
+        v = [np.mean(X[labels == c], 0) for c in range(self.n_clusters)]
 
         iter = 0
         errors = []

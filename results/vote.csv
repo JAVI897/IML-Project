@@ -15,11 +15,6 @@ Number of clusters,ari,sil,dbs,ch,dataset,clusteringAlg,affinity,linkage
 5,0.344,0.107,2.349,102.803,vote,kmed,None,None
 6,0.242,0.206,2.07,96.248,vote,kmed,None,None
 2,0.592,0.375,1.121,318.13,vote,ms,None,None
-2,0.599,0.375,1.122,318.128,vote,fuzzy,None,None
-3,0.529,0.264,1.941,179.721,vote,fuzzy,None,None
-4,0.574,0.273,1.768,182.592,vote,fuzzy,None,None
-5,0.612,0.266,1.755,174.449,vote,fuzzy,None,None
-6,0.622,0.27,1.899,172.894,vote,fuzzy,None,None
 2,0.51,0.366,1.15,305.663,vote,agg,euclidean,ward
 3,0.528,0.266,2.096,183.965,vote,agg,euclidean,ward
 4,0.357,0.191,2.32,142.034,vote,agg,euclidean,ward
@@ -55,3 +50,8 @@ Number of clusters,ari,sil,dbs,ch,dataset,clusteringAlg,affinity,linkage
 4,-0.005,-0.023,0.973,1.093,vote,agg,cosine,single
 5,-0.007,-0.062,0.99,1.049,vote,agg,cosine,single
 6,-0.004,-0.102,0.972,1.095,vote,agg,cosine,single
+2,0.599,0.375,1.122,318.128,vote,fuzzy,None,None
+3,0.529,0.264,1.941,179.721,vote,fuzzy,None,None
+4,0.502,0.233,2.221,131.632,vote,fuzzy,None,None
+5,0.507,0.209,3.162,100.011,vote,fuzzy,None,None
+6,0.517,0.188,2.708,80.811,vote,fuzzy,None,None
