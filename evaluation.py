@@ -147,7 +147,7 @@ def plot_p_indexes_and_others(config, p_indexes, eval, output):
     fig = plt.figure(figsize=(25, 8))
     colors = ['#689F38', '#039BE5', '#FF6F00', '#F44336', '#26C6DA']
     plt.subplot(1, 3, 1)
-    plt.plot(eval.keys(), [d['ch'] for d in eval.values()], linestyle = 'solid', marker = 'o', color = colors[0],label='Calinski Harabasz index')
+    plt.plot(eval.keys(), [d['ch'] for d in eval.values()], linestyle = 'solid', marker = 'o', color = colors[3],label='Calinski Harabasz index')
     plt.legend()
     plt.grid()
     plt.title('Evaluation for Fuzzy Clustering: CH')
@@ -164,7 +164,7 @@ def plot_p_indexes_and_others(config, p_indexes, eval, output):
     plt.ylabel('SC and DBI')
 
     plt.subplot(1, 3, 3)
-    plt.plot(p_indexes.keys(), p_indexes.values(), linestyle = 'solid', marker = 'o', color = colors[3], label='Performance indexes')
+    plt.plot(p_indexes.keys(), p_indexes.values(), linestyle = 'solid', marker = 'o', color = colors[0], label='Performance indexes')
     plt.grid()
     plt.title('Performance indexes. C-means fuzzy clustering with m={}'.format( config['m']))
     plt.xlabel('Clusters')
