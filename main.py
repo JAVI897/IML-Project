@@ -44,15 +44,15 @@ def main():
         clusterElection_plot(config)
         if config['dataset'] == 'vote':
             ari_plot(config, {'fuzzy':2,'agg_euclidean_ward':2,'agg_euclidean_complete':2, 'agg_euclidean_average':2,
-                              'agg_euclidean_single':2, 'agg_cosine_complete':2, 'agg_cosine_average':2, 'agg_cosine_single':2})
+                              'agg_euclidean_single':3, 'agg_cosine_complete':2, 'agg_cosine_average':2, 'agg_cosine_single':3, 'bkm':2, 'km':2, 'kmed':2, 'ms':2})
         if config['dataset'] == 'hyp':
             ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
                               'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
-                              'agg_cosine_single': 2})
+                              'agg_cosine_single': 2, 'bkm':2, 'km':2, 'kmed':2})
         if config['dataset'] == 'iris':
             ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
                               'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
-                              'agg_cosine_single': 3})
+                              'agg_cosine_single': 3, 'bkm':2, 'km':2, 'kmed':2})
         return
 
     if config['dataset'] == 'vote':

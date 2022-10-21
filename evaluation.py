@@ -286,10 +286,11 @@ def ari_plot(config, n_clust_alg_dict):
     X_melt = X_melt.sort_values('value')
     sns.set_style("whitegrid")
     fig, ax = plt.subplots(figsize=(20, 10))
-    sns.barplot(data=X_melt, x="algorithm", y="value", orient='v').set(title="ARI results")
+    sns.barplot(data=X_melt, x="algorithm", y="value", orient='v', palette = 'tab10').set(title="ARI results")
     ax.bar_label(ax.containers[0], padding=3)
     ax.set_ylabel('ARI')
     ax.set_xlabel('')
+    ax.set_xticklabels(X_melt.algorithm, rotation=45, ha='right')
 
     output = './plots/{}/ari.jpg'.format(config['dataset'])
     plt.savefig(output, bbox_inches='tight')
