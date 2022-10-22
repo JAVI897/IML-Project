@@ -1,6 +1,6 @@
 import argparse
 from datasets import preprocess_vote, preprocess_adult, preprocess_iris, preprocess_cmc, preprocess_hypothyroid
-from evaluation import evaluate_clustering_number, cluster_tendency, clusterElection_plot, ari_plot
+from evaluation import evaluate_clustering_number, cluster_tendency, clusterElection_plot, ari_plot, dbi_sc_ari_plot
 from sklearn.cluster import AgglomerativeClustering, MeanShift
 from visualize import bar_plot_vote, coordinate_plot, coordinate_plot_by_cluster, anova, chi2, confusion_matrix_compute
 import pandas as pd
@@ -45,14 +45,23 @@ def main():
         if config['dataset'] == 'vote':
             ari_plot(config, {'fuzzy':2,'agg_euclidean_ward':2,'agg_euclidean_complete':2, 'agg_euclidean_average':2,
                               'agg_euclidean_single':3, 'agg_cosine_complete':2, 'agg_cosine_average':2, 'agg_cosine_single':3, 'bkm':2, 'km':2, 'kmed':2, 'ms':2})
+            dbi_sc_ari_plot(config, {'fuzzy':2,'agg_euclidean_ward':2,'agg_euclidean_complete':2, 'agg_euclidean_average':2,
+                              'agg_euclidean_single':3, 'agg_cosine_complete':2, 'agg_cosine_average':2, 'agg_cosine_single':3, 'bkm':2, 'km':2, 'kmed':2, 'ms':2})
+
         if config['dataset'] == 'hyp':
-            ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
-                              'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
-                              'agg_cosine_single': 2, 'bkm':2, 'km':2, 'kmed':2})
+            ari_plot(config, {'km': 3, 'bkm': 2, 'kmed': 3, 'agg_euclidean_ward': 3, 'fuzzy':2,
+                              'agg_euclidean_complete': 2, 'agg_euclidean_average': 2, 'agg_euclidean_single': 2,
+                              'agg_cosine_complete': 9, 'agg_cosine_average': 5, 'agg_cosine_single':2, 'ms':21})
+            dbi_sc_ari_plot(config, {'km': 3, 'bkm': 2, 'kmed': 3, 'agg_euclidean_ward': 3, 'fuzzy':2,
+                              'agg_euclidean_complete': 2, 'agg_euclidean_average': 2, 'agg_euclidean_single': 2,
+                              'agg_cosine_complete': 9, 'agg_cosine_average': 5, 'agg_cosine_single':2, 'ms':21})
         if config['dataset'] == 'iris':
-            ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
+            ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 3, 'agg_euclidean_average': 2,
                               'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
-                              'agg_cosine_single': 3, 'bkm':2, 'km':2, 'kmed':2})
+                              'agg_cosine_single': 3, 'bkm':2, 'km':2, 'kmed':2, 'ms': 2})
+            dbi_sc_ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 3, 'agg_euclidean_average': 2,
+                              'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
+                              'agg_cosine_single': 3, 'bkm':2, 'km':2, 'kmed':2, 'ms': 2})
         return
 
     if config['dataset'] == 'vote':
@@ -121,10 +130,9 @@ def main():
 
         if config['dataset'] == 'iris':
             confusion_matrix_compute(labels, Y, output='./plots/iris/')
-            columns_to_plot = [ 'standardscaler__petalwidth', 'standardscaler__petallength',
-                                'standardscaler__sepalwidth', 'standardscaler__sepallength']
-            #coordinate_plot(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/iris/')
-            #coordinate_plot_by_cluster(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/iris/')
+            columns_to_plot = [ 'petalwidth', 'petallength', 'sepalwidth', 'sepallength']
+            coordinate_plot(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/iris/')
+            coordinate_plot_by_cluster(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/iris/')
             anova(X.copy(), labels, columns_to_plot, output = './results/iris_')
 
 if __name__ == '__main__':

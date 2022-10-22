@@ -146,6 +146,7 @@ class KMedians():
         x = np.array(x, dtype=np.float32)
         k = self.n_clusters
         n = np.size(x, 0)
+        np.random.seed(155)
         cluster_centers = x[np.random.choice(range(0, n), k, False)]
         clusters = np.empty((k, 0))
         old_clusters = []

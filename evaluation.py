@@ -294,3 +294,37 @@ def ari_plot(config, n_clust_alg_dict):
 
     output = './plots/{}/ari.jpg'.format(config['dataset'])
     plt.savefig(output, bbox_inches='tight')
+
+
+def dbi_sc_ari_plot(config, n_clust_alg_dict):
+    """
+    Given the name of the dataset,
+    this function plots a multiple line plot for each algorithm result.
+
+    :param config: config dict
+    :param n_clust_alg_dict: number of clusters selected per algorithm
+    """
+    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv'}
+    X = pd.read_csv(path_dataset[config['dataset']])
+
+    X["algorithm"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"] + "_" + X['Number of clusters'].astype(str)
+    X["algorithm"] = X["algorithm"].apply(lambda x: x.replace('_None_None', ''))
+
+    colors = ['#689F38', '#039BE5', '#FF6F00', '#F44336', '#26C6DA', '#FFC107', '#E91E63']
+    filter_algs = ['{}_{}'.format(k, v) for k, v in n_clust_alg_dict.items()]
+    X = X.loc[X['algorithm'].isin(filter_algs)]
+    X_melt = pd.melt(X, id_vars=["algorithm"], value_vars=["ari", "sil", "dbs"], var_name="metrics")
+    X_melt = X_melt.sort_values('value')
+
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(figsize=(20, 10))
+    sns.barplot(data=X_melt, x="algorithm", y="value", hue = "metrics", orient='v', palette = 'tab10', hue_order = ['dbs', 'sil', 'ari']).set(title="ARI, DBI and SC results")
+    ax.bar_label(ax.containers[0], padding=3)
+    ax.bar_label(ax.containers[1], padding=3)
+    ax.bar_label(ax.containers[2], padding=3)
+    ax.set_ylabel('ARI, DBI and SC')
+    ax.set_xlabel('')
+    plt.xticks(rotation=45)
+
+    output = './plots/{}/dbi_sc_ari.jpg'.format(config['dataset'])
+    plt.savefig(output, bbox_inches='tight')

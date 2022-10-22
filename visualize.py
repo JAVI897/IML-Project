@@ -108,7 +108,7 @@ def coordinate_plot(X, Y, labels, columns_to_plot, output, rename_target=None):
         X['Target'] = X['Target'].replace(rename_target)
     X['Cluster'] = labels
     fig = plt.figure(figsize=(20, 10))
-    parallel_coordinates(X, 'Target', cols = ['Cluster'] + columns_to_plot)
+    parallel_coordinates(X, 'Target', cols = ['Cluster'] + columns_to_plot )
     plt.savefig(output + 'parallel_coords.jpg', bbox_inches='tight')
 
 
@@ -132,11 +132,16 @@ def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, rename_tar
     X['Cluster'] = labels
     max_value = max(max(X[columns_to_plot[i]]) for i in range(len(columns_to_plot)))
     min_value = min(min(X[columns_to_plot[i]]) for i in range(len(columns_to_plot)))
+    # iris-setosa, iris-versicolor, iris-virginica
+    colors = [ ['#388E3C', '#1E88E5'], ['#EF6C00'], ['#EF6C00', '#388E3C', '#1E88E5'] ]
+    plt.rcParams.update({'font.size': 34})
     for cluster in X.Cluster.unique():
         X_c = X.loc[X['Cluster'] == cluster]
-        fig = plt.figure(figsize=(20, 10))
-        parallel_coordinates(X_c, 'Target', cols = columns_to_plot)
+        fig = plt.figure(figsize=(15, 10))
+        parallel_coordinates(X_c, 'Target', cols = columns_to_plot, color = colors[cluster])
         plt.title('Cluster: {}'.format(cluster))
+        plt.xticks(rotation=90)
+        plt.legend(loc='upper left')
         plt.ylim(max_value, min_value)
         plt.savefig(output + 'parallel_coords_cluster_{}.jpg'.format(cluster), bbox_inches='tight')
 
