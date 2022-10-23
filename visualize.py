@@ -79,13 +79,14 @@ def bar_plot_vote(X, Y, labels, output, rename_target = None):
     :param output: path
     """
     plt.style.use('seaborn-white')
+    plt.rcParams.update({'font.size': 34})
     X['Target'] = Y
     if rename_target is not None:
         X['Target'] = X['Target'].replace(rename_target)
     X['Cluster'] = labels
     for column in X.columns:
         print(column)
-        fig = plt.figure(figsize=(20, 10))
+        fig = plt.figure(figsize=(15, 10))
         sns.countplot(data = X, x = 'Cluster', hue=column)
         plt.savefig(output+'{}.jpg'.format(column), bbox_inches='tight')
 
@@ -112,7 +113,7 @@ def coordinate_plot(X, Y, labels, columns_to_plot, output, rename_target=None):
     plt.savefig(output + 'parallel_coords.jpg', bbox_inches='tight')
 
 
-def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, rename_target=None):
+def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, dataset = 'vote', rename_target=None):
     """
     coordinate_plot
     Given a dataset, the target variable and the clustering labels,
@@ -133,7 +134,11 @@ def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, rename_tar
     max_value = max(max(X[columns_to_plot[i]]) for i in range(len(columns_to_plot)))
     min_value = min(min(X[columns_to_plot[i]]) for i in range(len(columns_to_plot)))
     # iris-setosa, iris-versicolor, iris-virginica
-    colors = [ ['#388E3C', '#1E88E5'], ['#EF6C00'], ['#EF6C00', '#388E3C', '#1E88E5'] ]
+    if dataset == 'vote':
+        colors = [ ['#388E3C', '#1E88E5'], ['#EF6C00'], ['#EF6C00', '#388E3C', '#1E88E5'] ]
+    else:
+        # class 0, 1, 2, 3
+        colors = [['#EF6C00', '#388E3C', '#1E88E5', '#3E2723'], ['#EF6C00', '#388E3C', '#1E88E5'], ['#EF6C00', '#388E3C', '#1E88E5']]
     plt.rcParams.update({'font.size': 34})
     for cluster in X.Cluster.unique():
         X_c = X.loc[X['Cluster'] == cluster]
@@ -141,7 +146,10 @@ def coordinate_plot_by_cluster(X, Y, labels, columns_to_plot, output, rename_tar
         parallel_coordinates(X_c, 'Target', cols = columns_to_plot, color = colors[cluster])
         plt.title('Cluster: {}'.format(cluster))
         plt.xticks(rotation=90)
-        plt.legend(loc='upper left')
+        if dataset == 'vote':
+            plt.legend(loc='upper left')
+        else:
+            plt.legend(loc='best')
         plt.ylim(max_value, min_value)
         plt.savefig(output + 'parallel_coords_cluster_{}.jpg'.format(cluster), bbox_inches='tight')
 

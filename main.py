@@ -128,6 +128,20 @@ def main():
             confusion_matrix_compute(labels, Y.replace({'negative': 0, 'compensated_hypothyroid': 1, 'primary_hypothyroid': 2,
                                                         'secondary_hypothyroid': 3}), output='./plots/hyp/')
 
+            numeric_vbles = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
+
+            binary_vbles = ['sex', 'on_thyroxine', 'query_on_thyroxine',
+                            'on_antithyroid_medication', 'sick', 'pregnant', 'thyroid_surgery',
+                            'I131_treatment', 'query_hypothyroid', 'query_hyperthyroid', 'lithium',
+                            'goitre', 'tumor', 'hypopituitary', 'psych', 'TSH_measured',
+                            'T3_measured', 'TT4_measured', 'T4U_measured',
+                            'FTI_measured']
+
+            bar_plot_vote(X.copy(), Y.copy(), labels, output = './plots/hyp/')
+            coordinate_plot_by_cluster(X.copy(), Y.copy(), labels, numeric_vbles, dataset = 'hyp', output='./plots/hyp/')
+            anova(X.copy(), labels, numeric_vbles, output='./results/hyp_')
+            chi2(X.copy(), labels, binary_vbles, output = './results/hyp_' )
+
         if config['dataset'] == 'iris':
             confusion_matrix_compute(labels, Y, output='./plots/iris/')
             columns_to_plot = [ 'petalwidth', 'petallength', 'sepalwidth', 'sepallength']
