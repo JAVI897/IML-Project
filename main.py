@@ -1,5 +1,5 @@
 import argparse
-from datasets import preprocess_vote, preprocess_adult, preprocess_iris, preprocess_cmc, preprocess_hypothyroid
+from datasets import preprocess_vote, preprocess_adult, preprocess_iris, preprocess_cmc, preprocess_hypothyroid, preprocess_vehicle
 from evaluation import evaluate_clustering_number, cluster_tendency, clusterElection_plot, ari_plot, dbi_sc_ari_plot
 from sklearn.cluster import AgglomerativeClustering, MeanShift
 from visualize import bar_plot_vote, coordinate_plot, coordinate_plot_by_cluster, anova, chi2, confusion_matrix_compute
@@ -11,7 +11,7 @@ from algorithms import FuzzyClustering, KMeans, KMedians, BKM
 parser = argparse.ArgumentParser()
 
 ### run--> python3 main.py --dataset vote
-parser.add_argument("--dataset", type=str, default='vote', choices=['vote', 'adult', 'iris', 'cmc', 'hyp'])
+parser.add_argument("--dataset", type=str, default='vote', choices=['vote', 'adult', 'iris', 'cmc', 'hyp','vehi'])
 parser.add_argument("--clusteringAlg", type=str, default='agg', choices=['km', 'bkm', 'ms', 'agg', 'kmed', 'fuzzy'])
 parser.add_argument("--max_num_clusters", type=int, default=7, choices=range(2,100))
 parser.add_argument("--num_clusters", type=int)
@@ -62,6 +62,13 @@ def main():
             dbi_sc_ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 3, 'agg_euclidean_average': 2,
                               'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
                               'agg_cosine_single': 3, 'bkm':2, 'km':2, 'kmed':2, 'ms': 2})
+        if config['dataset'] == 'vehi':
+            ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
+                              'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
+                              'agg_cosine_single': 2, 'bkm':2, 'km':2, 'kmed':2, 'ms': 2})
+            dbi_sc_ari_plot(config, {'fuzzy': 2, 'agg_euclidean_ward': 2, 'agg_euclidean_complete': 2, 'agg_euclidean_average': 2,
+                              'agg_euclidean_single': 2, 'agg_cosine_complete': 2, 'agg_cosine_average': 2,
+                              'agg_cosine_single': 2, 'bkm':2, 'km':2, 'kmed':2, 'ms': 2})
         return
 
     if config['dataset'] == 'vote':
@@ -78,6 +85,9 @@ def main():
 
     if config['dataset'] == 'hyp':
         X, Y = preprocess_hypothyroid()
+
+    if config['dataset'] == 'vehi':
+        X, Y = preprocess_vehicle()
 
     if config['cluster_tend']:
         cluster_tendency(X, config)
@@ -148,6 +158,14 @@ def main():
             coordinate_plot(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/iris/')
             coordinate_plot_by_cluster(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/iris/')
             anova(X.copy(), labels, columns_to_plot, output = './results/iris_')
+
+        if config['dataset'] == 'vehi':
+            confusion_matrix_compute(labels, Y, output='./plots/vehi/')
+            columns_to_plot = ['opel', 'saab', 'bus', 'van']
+            coordinate_plot(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/vehi/')
+            coordinate_plot_by_cluster(X.copy(), Y.copy(), labels, columns_to_plot, output='./plots/vehi/')
+            anova(X.copy(), labels, columns_to_plot, output = './results/vehi_')
+
 
 if __name__ == '__main__':
 	main()

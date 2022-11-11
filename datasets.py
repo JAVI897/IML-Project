@@ -172,3 +172,27 @@ def preprocess_iris():
     Y = df['class']
     X = df.drop('class', axis = 1)
     return X, Y
+
+def preprocess_vehicle():
+
+    file_name = './datasets/vehicle.arff'
+    data = arff.loadarff(file_name)
+    df = pd.DataFrame(data[0])
+    df = df.applymap(lambda x: x.decode('utf-8') if type(x) != float else x)
+
+    # Numeric variables
+    numerical = ['COMPACTNESS', 'CIRCULARITY', 'DISTANCE_CIRCULARITY', 'RADIUS_RATIO',
+                 'PR.AXIS_ASPECT_RATIO', 'MAX.LENGTH_ASPECT_RATIO', 'SCATTER_RATIO', 'ELONGATEDNESS','PR.AXIS_RECTANGULARITY',
+                 'MAX.LENGTH_RECTANGULARITY', 'SCALED_VARIANCE_MAJOR', 'SCALED_VARIANCE_MINOR', 'SCALED_RADIUS_OF_GYRATION',
+                 'SKEWNESS_ABOUT_MAJOR', 'SKEWNESS_ABOUT_MINOR', 'KURTOSIS_ABOUT_MAJOR', 'KURTOSIS_ABOUT_MINOR', 'HOLLOWS_RATIO']
+
+    for c in numerical:
+        df[c] = StandardScaler().fit_transform(df[c].values.reshape(-1, 1))
+
+    df['Class'] = df['Class'].replace({'opel': 0, 'saab': 1, 'bus': 2, 'van': 3})
+    df = df.sort_values('Class')
+
+    Y = df['Class']
+    X = df.drop('Class', axis=1)
+
+    return X, Y

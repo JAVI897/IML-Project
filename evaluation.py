@@ -181,7 +181,7 @@ def clusterElection_plot(config):
     :param config: config dict
     :param output: results path
     """
-    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv'}
+    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv', "vehi": './results/vehi.csv'}
     X = pd.read_csv(path_dataset[config['dataset']])
 
     X["plot_name"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"]
@@ -259,8 +259,8 @@ def clusterElection_plot(config):
                                             loc='upper right')
         ax[n // 3, n - (n // 3) * 3].grid(True)
 
-    ax[3,2].set_axis_off()
-    ax[3,1].set_axis_off()
+    #ax[3,2].set_axis_off()
+    #ax[3,1].set_axis_off()
     output = './plots/{}/clusterElection_sil_dbs_ch.jpg'.format(config['dataset'])
     plt.savefig(output, bbox_inches='tight', dpi = 500)
 
@@ -273,7 +273,7 @@ def ari_plot(config, n_clust_alg_dict):
     :param config: config dict
     :param n_clust_alg_dict: number of clusters selected per algorithm
     """
-    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv'}
+    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv', "vehi": './results/vehi.csv'}
     X = pd.read_csv(path_dataset[config['dataset']])
 
     X["algorithm"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"] + "_" + X['Number of clusters'].astype(str)
@@ -304,7 +304,7 @@ def dbi_sc_ari_plot(config, n_clust_alg_dict):
     :param config: config dict
     :param n_clust_alg_dict: number of clusters selected per algorithm
     """
-    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv'}
+    path_dataset = {"vote": './results/vote.csv', "hyp": './results/hyp.csv', "iris": './results/iris.csv', "vehi": './results/vehi.csv'}
     X = pd.read_csv(path_dataset[config['dataset']])
 
     X["algorithm"] = X["clusteringAlg"] + "_" + X["affinity"] + "_" + X["linkage"] + "_" + X['Number of clusters'].astype(str)
